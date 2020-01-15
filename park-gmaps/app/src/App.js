@@ -2,8 +2,15 @@ import React, { useState, useEffect, useRef } from 'react';
 import './css-reset.css';
 import './App.scss';
 import STYLE from './MapStyle.json';
+import axios from 'axios';
+
+/**
+ * Dev notes: some of this is ugly, I did not realize until later eg. I should set state but directly modified css properties
+ * due to ugly full-component re-render. I was trying to get this done in a night.
+ */
 
 function App() {
+	const GOOGLE_MAPS_KEY = process.env.REACT_APP_GOOGLE_MAPS_KEY;
 	const [map, setMap] = useState({ ready: false }); // ehh this sucks
 	const [searchLayout, setSearchLayout] = useState({ active: true });
 	const [addressInput, setAddressInput] = useState({ active: true });
@@ -18,16 +25,18 @@ function App() {
 	const autoCompleteInput = useRef(null);
 	const addressInputParent = useRef(null);
 	const addressInputGroup = useRef(null);
-	
+
+	let placesService;
+	let selectedRadius = 15;
+	const activeMarkers = [];
 
 	if (!map.ready) {
-		const GOOGLE_MAPS_KEY = process.env.REACT_APP_GOOGLE_MAPS_KEY;
 		const script = document.createElement('script'); //creates the html script element that points to external script via src
 		script.src = 'https://maps.googleapis.com/maps/api/js?key=' + GOOGLE_MAPS_KEY + '&libraries=places';
 		script.async = true; 
 		script.defer = true;
 		script.addEventListener('load', () => {
-		  setMap({ ready: true });
+		  	setMap({ ready: true });
 		});
 		document.head.append(script);
 	}
@@ -49,12 +58,13 @@ function App() {
 		}
 	}, [map]);
 
-	// hide overlay after changing location
-	// useEffect(() => {
-	// 	if (map.ready && addressInputGroup.current && addressInputParent) {
-	// 		showAddressSearchOverlay(false);
-	// 	}
-	// }, [center]);
+	useEffect(() => {
+		if (
+			(map.isReady && autoCompleteInput.current && Object.entries( window.google ).length !== 0 && window.google.constructor === Object)
+		) {
+			bindAutoCompleteInput();
+		}
+	}, [searchLayout]);
 
 	const clearAndFocusAddressInput = () => {
 		const autoCompleteInput = document.querySelector('.App__autocomplete');
@@ -73,37 +83,79 @@ function App() {
 		clearAndFocusAddressInput();
 	};
 
-	useEffect(() => {
-		if (
-			(map.isReady && autoCompleteInput.current && Object.entries( window.google ).length !== 0 && window.google.constructor === Object)
-		) {
-			bindAutoCompleteInput();
-		}
-	}, [searchLayout]);
-
 	const toggleSearchLayout = (active) => {
 		setSearchLayout({ active: active });
 		showAddressSearchOverlay(active); // this is somewhat lazy, could have put an icon over map
 		clearAndFocusAddressInput();
 	}
+	
+	const clearMap = () => {
+		activeMarkers.forEach((marker) => {
+			marker.setMap(null);
+		});
+	};
+
+	// skipping stuff or now like marker styling/click event/etc...
+	// can add info of the park from results, show on click of icon in window
+	const plotParks = (parks) => {
+		clearMap();
+		const bounds = new window.google.maps.LatLngBounds();
+
+		parks.forEach((park) => {
+			const marker = new window.google.maps.Marker({
+				position: park.geometry.location,
+				map: mapTarget.current
+			});
+			activeMarkers.push(marker);
+			bounds.extend(marker.position);
+		});
+		
+		mapTarget.current.fitBounds(bounds);
+	};
+
+	// radius is meters
+	const basicParkSearch = (radiusMiles) => {
+		const radiusInMeters = (Math.round(10000*(radiusMiles*5280 / 3.281))/10000);
+
+		placesService.nearbySearch(
+			{location: mapTarget.current.getCenter(), radius: radiusInMeters, type: ['park']},
+			(results, status, pagination) => {
+				if (status !== 'OK' || !results.length) {
+					alert('No parks found near you, try increasing your radius or try a new address');
+				} else {
+					plotParks(results);
+				}
+			});
+	};
 
 	const updateLocation = () => {
+		placesService = new window.google.maps.places.PlacesService(mapTarget.current);
 		const selectedPlace = autoCompleteInput.current.getPlace();
 		if ( selectedPlace ) {
-			// setCenter({
-			// 	"lat": selectedPlace.geometry.location.lat(),
-			// 	"lng": selectedPlace.geometry.location.lng()
-			// });
+			const selectedLat = selectedPlace.geometry.location.lat();
+			const selectedLng = selectedPlace.geometry.location.lng();
 
-			// changing state causes isues with auto complete input not being ready on re-render
 			mapTarget.current.setCenter({
-				"lat": selectedPlace.geometry.location.lat(),
-				"lng": selectedPlace.geometry.location.lng()
+				"lat": selectedLat,
+				"lng": selectedLng
 			});
+
 			showAddressSearchOverlay(false);
+			basicParkSearch(selectedRadius)
 		} else {
 			alert( 'Failed to determine location' );
     	}
+	}
+
+	const updateSearchRadius = (radius) => {
+		console.log(radius);
+		selectedRadius = radius;
+	};
+
+	const radiusSelectOptions = () =>  {
+		return [5, 10, 15, 25, 50, 100].map((distance, index) => {
+			return (<option key={index} value={distance}>{distance}</option>)
+		});
 	}
 
 	const mapNavBtns = () => {
@@ -119,6 +171,12 @@ function App() {
 					ref={ mapBtnAddParks } onClick={ () => toggleSearchLayout(false) }
 					className={ searchLayout.active ? "" : "active" }
 				>Add Parks Manually</button>
+				<div className="App__search-radius"> {/* should disable this, until search happened */}
+					<h3>Radius in miles</h3>
+					<select onChange={ (e) => updateSearchRadius(e.target.value) }>
+						{ radiusSelectOptions() }
+					</select>
+				</div>
 			</>
 		);
 	}
@@ -135,6 +193,7 @@ function App() {
 			<>
 				<h1>Park Finder Demo</h1>
 				<p>After you search a location, to reset, click on "Search Parks Near Me"</p>
+				<p>Add parks manually is not built yet at this time, it would just be a basic coordinate picker</p>
 			</>
 		);
 	};
