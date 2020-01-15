@@ -55,8 +55,16 @@ function App() {
 	const mapNavBtns = () => {
 		return (
 			<>
-				<button type="button" ref={ mapBtnSearch } onClick={ () => toggleSearchLayout(true) }>Search Parks Near Me</button>
-				<button type="button" ref={ mapBtnAddParks } onClick={ () => toggleSearchLayout(false) } >Add Parks Manually</button>
+				<button
+					type="button"
+					ref={ mapBtnSearch } onClick={ () => toggleSearchLayout(true) }
+					className={ !searchLayout.active ? "" : "active" }
+				>Search Parks Near Me</button>
+				<button
+					type="button"
+					ref={ mapBtnAddParks } onClick={ () => toggleSearchLayout(false) }
+					className={ searchLayout.active ? "" : "active" }
+				>Add Parks Manually</button>
 			</>
 		);
 	}
