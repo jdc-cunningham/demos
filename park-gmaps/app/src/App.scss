@@ -1,0 +1,33 @@
+body * {
+  box-sizing: border-box;
+}
+
+.App {
+  display: block;
+}
+
+.App__navbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  height: 50px;
+}
+
+.App__map-group {
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-start;
+  height: calc(100vh - 50px);
+}
+
+.App__map {
+  display: block;
+  width: 100%;
+}
+
+.App__address-input {
+  &.hidden {
+    display: none;
+  }
+}

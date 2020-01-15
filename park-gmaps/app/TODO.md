@@ -1,0 +1,6 @@
+- [ ] Base functionality
+    - [x] load in map
+    - [ ] add reverse geocode(address to lat)
+    - [ ] try basic park search
+    - [ ] add basic point picker/add to starting array
+    - [ ] add client-side haversine formula for radius searching

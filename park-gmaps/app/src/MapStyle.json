@@ -1,0 +1,28 @@
+[
+	{
+		"featureType": "administrative.land_parcel",
+		"elementType": "labels",
+		"stylers": [
+			{
+				"visibility": "off"
+			}
+		]
+		},
+		{
+		"featureType": "road",
+		"stylers": [
+			{
+				"visibility": "off"
+			}
+		]
+		},
+		{
+		"featureType": "road.local",
+		"elementType": "labels",
+		"stylers": [
+			{
+				"visibility": "off"
+			}
+		]
+	}
+]
