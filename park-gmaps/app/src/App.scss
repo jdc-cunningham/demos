@@ -1,4 +1,6 @@
 body {
+  font-family: 'Roboto';
+
   .pac-container { // auto-complete dropdown
     z-index: 99999;
   }
@@ -10,6 +12,7 @@ body * {
 
 .App {
   display: block;
+  width: 100%;
 }
 
 .App__navbar {
@@ -21,7 +24,6 @@ body * {
   border-bottom: 1px solid #aaa;
 
   button {
-    margin-left: 1rem;
     padding: 0.50rem;
     border-radius: 0.25rem;
     border: 0;
@@ -32,10 +34,36 @@ body * {
     outline: none;
     cursor: pointer;
 
+    &:not(:first-of-type) {
+      margin-left: 1rem;
+    }
+
     &.active {
       color: white;
       background-color: #282828;
     }
+  }
+}
+
+.App__row {
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-start;
+  flex-direction: row;
+}
+
+.App__info {
+  padding: 1rem;
+  width: 20%;
+
+  h1 {
+    font-size: 2rem;
+    padding-bottom: 0.5rem;
+  }
+
+  p {
+    font-size: 1rem;
+    color: #282828;
   }
 }
 
@@ -60,6 +88,11 @@ body * {
       pointer-events: none; // weird map still draggable
     }
   }
+}
+
+.App__map-wrapper {
+  display: block;
+  width: 80%;
 }
 
 .App__map {

@@ -8,12 +8,17 @@ function App() {
 	const [searchLayout, setSearchLayout] = useState({ active: true });
 	const [addressInput, setAddressInput] = useState({ active: true });
 	const [autoComplete, setAutoComplete] = useState({ loaded: false });
+	const [center, setCenter] = useState({
+		lat: 39.092965,
+		lng: -94.583778 // plexpod crossroads
+	});
 	const mapTarget = useRef(null); 
 	const mapBtnSearch = useRef(null);
 	const mapBtnAddParks = useRef(null);
 	const autoCompleteInput = useRef(null);
 	const addressInputParent = useRef(null);
 	const addressInputGroup = useRef(null);
+	
 
 	if (!map.ready) {
 		const GOOGLE_MAPS_KEY = process.env.REACT_APP_GOOGLE_MAPS_KEY;
@@ -33,23 +38,72 @@ function App() {
 			mapTarget.current = new window.google.maps.Map(
 				document.getElementById('map'), {
 					zoom: 12,
-					center: {lat: 39.092965, lng: -94.583778}, // plexpod crossroads
+					center: {
+						lat: center.lat,
+						lng: center.lng},
 					styles: STYLE //JSON map style imported from above
 				}
 			);
 
-			if (!autoComplete.current && Object.entries( window.google ).length !== 0 && window.google.constructor === Object) {
-				autoCompleteInput.current = new window.google.maps.places.Autocomplete(
-					autoCompleteInput.current,
-					{ types: ['geocode'] }
-				);
-			}
+			bindAutoCompleteInput();
 		}
-	});
+	}, [map]);
+
+	// hide overlay after changing location
+	// useEffect(() => {
+	// 	if (map.ready && addressInputGroup.current && addressInputParent) {
+	// 		showAddressSearchOverlay(false);
+	// 	}
+	// }, [center]);
+
+	const clearAndFocusAddressInput = () => {
+		const autoCompleteInput = document.querySelector('.App__autocomplete');
+		if (autoCompleteInput) {
+			autoCompleteInput.value = ""; // reset
+			autoCompleteInput.focus();
+		}
+	};
+
+	const bindAutoCompleteInput = () => {
+		autoCompleteInput.current = new window.google.maps.places.Autocomplete(
+			autoCompleteInput.current,
+			{ types: ['geocode'] }
+		);
+		autoCompleteInput.current.addListener( 'place_changed', updateLocation );
+		clearAndFocusAddressInput();
+	};
+
+	useEffect(() => {
+		if (
+			(map.isReady && autoCompleteInput.current && Object.entries( window.google ).length !== 0 && window.google.constructor === Object)
+		) {
+			bindAutoCompleteInput();
+		}
+	}, [searchLayout]);
 
 	const toggleSearchLayout = (active) => {
 		setSearchLayout({ active: active });
 		showAddressSearchOverlay(active); // this is somewhat lazy, could have put an icon over map
+		clearAndFocusAddressInput();
+	}
+
+	const updateLocation = () => {
+		const selectedPlace = autoCompleteInput.current.getPlace();
+		if ( selectedPlace ) {
+			// setCenter({
+			// 	"lat": selectedPlace.geometry.location.lat(),
+			// 	"lng": selectedPlace.geometry.location.lng()
+			// });
+
+			// changing state causes isues with auto complete input not being ready on re-render
+			mapTarget.current.setCenter({
+				"lat": selectedPlace.geometry.location.lat(),
+				"lng": selectedPlace.geometry.location.lng()
+			});
+			showAddressSearchOverlay(false);
+		} else {
+			alert( 'Failed to determine location' );
+    	}
 	}
 
 	const mapNavBtns = () => {
@@ -76,22 +130,38 @@ function App() {
 		addressInputParent.current.classList = show ? "App__map-group dark-overlay" : "App__map-group";
 	};
 
+	const info = () => {
+		return (
+			<>
+				<h1>Park Finder Demo</h1>
+				<p>After you search a location, to reset, click on "Search Parks Near Me"</p>
+			</>
+		);
+	};
+
 	return (
 		<div className="App">
-			<div className="App__navbar">
-				{ mapNavBtns() }
-			</div>
-			<div ref={ addressInputParent } className={ addressInput.active ? "App__map-group dark-overlay" : "App__map-group" }>
-				<div
-					className={
-						addressInput.active ? "App__address-input" : "App__address-input hidden"
-					}
-					ref={ addressInputGroup }>
-					<input type="text" className="App__autocomplete" placeholder="search a location" ref={ autoCompleteInput } />
-					<button type="button" className="App__cancel-search" onClick={ () => showAddressSearchOverlay(false) }>Cancel</button>
+			<div className="App__row">
+				<div className="App__info">
+					{ info() }
 				</div>
-				<div id="map" className="App__map"></div>
-				<div className={ searchLayout.active ? "App__sidebar hidden" : "App__sidebar" }></div>
+				<div className="App__map-wrapper">
+					<div className="App__navbar">
+						{ mapNavBtns() }
+					</div>
+					<div ref={ addressInputParent } className={ addressInput.active ? "App__map-group dark-overlay" : "App__map-group" }>
+						<div
+							className={
+								addressInput.active ? "App__address-input" : "App__address-input hidden"
+							}
+							ref={ addressInputGroup }>
+							<input type="text" className="App__autocomplete" placeholder="search a location" ref={ autoCompleteInput } />
+							<button type="button" className="App__cancel-search" onClick={ () => showAddressSearchOverlay(false) }>Cancel</button>
+						</div>
+						<div id="map" className="App__map"></div>
+						<div className={ searchLayout.active ? "App__sidebar hidden" : "App__sidebar" }></div>
+					</div>
+				</div>
 			</div>
 		</div>
 	);
