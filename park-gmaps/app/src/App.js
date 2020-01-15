@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import './css-reset.css';
 import './App.scss';
 import STYLE from './MapStyle.json';
-import axios from 'axios';
+// import axios from 'axios';
 
 /**
  * Dev notes: some of this is ugly, I did not realize until later eg. I should set state but directly modified css properties
