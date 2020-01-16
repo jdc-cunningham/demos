@@ -96,7 +96,6 @@ function App() {
 	};
 
 	const toggleSearchLayout = (active) => {
-		console.log('toggle', pickedMapPoints);
 		setSearchLayout({ active: active });
 		searchLayoutActive = active;
 		showAddressSearchOverlay(active); // this is somewhat lazy, could have put an icon over map
@@ -105,7 +104,6 @@ function App() {
 	}
 	
 	const clearMap = () => {
-		console.log('clearMap');
 		// technically should not do it for both
 		// autocomplete
 		if (activeMarkers.length) {
@@ -122,6 +120,7 @@ function App() {
 			});
 			pickedMapMarkers = [];
 			pickedMapPoints = [];
+			pickedMapPointsDisplay.current.innerHTML = "";
 		}
 	};
 
@@ -129,13 +128,11 @@ function App() {
 	// can add info of the park from results, show on click of icon in window
 	const plotPoints = (points) => {
 		// this is an ugly async thing... a pagination can still be in progress, you switch over to the other layout and it plots it there.
-		console.log('pp');
 		if (!searchLayoutActive) {
 			clearMap();
 			return;
 		}
 
-		console.log('next');
 		clearMap();
 		const bounds = new window.google.maps.LatLngBounds();
 
@@ -349,7 +346,7 @@ function App() {
 						<div id="map" className="App__map"></div>
 						<div className={ searchLayout.active ? "App__sidebar hidden" : "App__sidebar" }>
 							<h4>Click anywhere on the map and they will show up below.</h4>
-							<button type="button" onClick={ () => clearPickerMapDisplay }>Clear Map</button>
+							<button type="button" onClick={ () => clearPickerMapDisplay() }>Clear Map</button>
 							<div className="App__sidebar-map-points" ref={ pickedMapPointsDisplay }></div>
 						</div>
 					</div>
