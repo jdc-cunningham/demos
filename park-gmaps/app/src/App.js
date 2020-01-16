@@ -3,6 +3,7 @@ import './css-reset.css';
 import './App.scss';
 import STYLE from './MapStyle.json';
 // import axios from 'axios';
+import treeIcon from './tree-icon-100x100.png';
 
 /**
  * Dev notes: some of this is ugly, I did not realize until later eg. I should set state but directly modified css properties
@@ -110,9 +111,17 @@ function App() {
 		const bounds = new window.google.maps.LatLngBounds();
 
 		points.forEach((park) => {
+			const icon = {
+				url: treeIcon, // lol I drew this tree in GIMP
+				scaledSize: new window.google.maps.Size(50, 50),
+				origin: new window.google.maps.Point(0,0),
+				anchor: new window.google.maps.Point(0,0)
+			};
+
 			const marker = new window.google.maps.Marker({
 				position: park.geometry.location,
-				map: mapTarget.current
+				map: mapTarget.current,
+				icon: searchLayout.active ? icon : ""
 			});
 			activeMarkers.push(marker);
 			bounds.extend(marker.position);
@@ -124,7 +133,6 @@ function App() {
 	// this I think is fine to show 20, then you store those as you zoom out/increase radius
 	// then you don't have to use the pagination from same event/do it in the background/and add to list
 	const plotParks = (parks, pagination) => {
-		console.log('plot points');
 		plotPoints(parks);
 		if (pagination.hasNextPage) {
 			// 2 second delay apparently
@@ -232,7 +240,10 @@ function App() {
 			<>
 				<h1>Park Finder Demo</h1>
 				<p>After you search a location, to reset, click on "Search Parks Near Me"</p>
+				<br/>
 				<p>Add parks manually is not built yet at this time, it would just be a basic coordinate picker</p>
+				<br/>
+				<p>Note: the delay while the parks load is from the pagination, there is a mandatory 2 second delay between requests. Can do it in the background/show all at once, show loading icon, etc...</p>
 			</>
 		);
 	};
