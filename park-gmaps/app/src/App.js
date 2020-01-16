@@ -25,10 +25,12 @@ function App() {
 	const autoCompleteInput = useRef(null);
 	const addressInputParent = useRef(null);
 	const addressInputGroup = useRef(null);
+	const pickedMapPointsDisplay = useRef(null);
 
 	let placesService;
 	let selectedRadius = 15;
-	const activeMarkers = [];
+	let activeMarkers = [];
+	const pickedMapPoints = [];
 
 	if (!map.ready) {
 		const script = document.createElement('script'); //creates the html script element that points to external script via src
@@ -53,6 +55,10 @@ function App() {
 					styles: STYLE //JSON map style imported from above
 				}
 			);
+
+			mapTarget.current.addListener('click', (e) => {
+				updatePickedMapPoints(e.latLng);
+			});
 
 			bindAutoCompleteInput();
 		}
@@ -87,21 +93,23 @@ function App() {
 		setSearchLayout({ active: active });
 		showAddressSearchOverlay(active); // this is somewhat lazy, could have put an icon over map
 		clearAndFocusAddressInput();
+		clearMap();
 	}
 	
 	const clearMap = () => {
 		activeMarkers.forEach((marker) => {
 			marker.setMap(null);
 		});
+		activeMarkers = [];
 	};
 
 	// skipping stuff or now like marker styling/click event/etc...
 	// can add info of the park from results, show on click of icon in window
-	const plotParks = (parks) => {
+	const plotPoints = (points) => {
 		clearMap();
 		const bounds = new window.google.maps.LatLngBounds();
 
-		parks.forEach((park) => {
+		points.forEach((park) => {
 			const marker = new window.google.maps.Marker({
 				position: park.geometry.location,
 				map: mapTarget.current
@@ -111,6 +119,20 @@ function App() {
 		});
 		
 		mapTarget.current.fitBounds(bounds);
+	};
+
+	// this I think is fine to show 20, then you store those as you zoom out/increase radius
+	// then you don't have to use the pagination from same event/do it in the background/and add to list
+	const plotParks = (parks, pagination) => {
+		console.log('plot points');
+		plotPoints(parks);
+		if (pagination.hasNextPage) {
+			// 2 second delay apparently
+			setTimeout(() => {
+				pagination.nextPage(); // plots more points on map, not added to marker list though...
+			}, 2000);
+			// this delay blows, do not call it faster than 2 seconds, if you do you will get denied every subsequent response without doing some changes
+		}
 	};
 
 	// radius is meters
@@ -123,13 +145,20 @@ function App() {
 				if (status !== 'OK' || !results.length) {
 					alert('No parks found near you, try increasing your radius or try a new address');
 				} else {
-					// get all results
-					if (pagination.hasNextPage) {
-						console.log(pagination); // returns crazy long UUID looks like
-						console.log(pagination.nextPage());
-					}
+					if (activeMarkers.length) {
+						const curPoints = activeMarkers.map((marker) => {
+							return Object.assign({}, {
+								"geometry":{
+									"location": marker.position
+								}
+							})
+						});
 
-					plotParks(results);
+						// this is a super ugly hack, again lack of foresight, I'm mimicking part of the original
+						// object structure from results so it has geometry.location
+						results.splice.apply(results, [0, 0].concat(curPoints)); // prepends exisitng markers to paginated results
+					}
+					plotParks(results, pagination);
 				}
 			});
 	};
@@ -154,7 +183,6 @@ function App() {
 	}
 
 	const updateSearchRadius = (radius) => {
-		console.log(radius);
 		selectedRadius = radius;
 
 		// no no
@@ -209,6 +237,23 @@ function App() {
 		);
 	};
 
+	const updatePickedMapPoints = (newPoint) => {
+		pickedMapPoints.push(newPoint); // could do this if you want to store all, will just plot as picked, could use to clear map
+		// plotPickedMapPoints();
+		plotPickedMapPoint(newPoint);
+	};
+
+	const plotPickedMapPoint = (newPoint) => {
+		console.log(newPoint.lat(), newPoint.lng());
+	};
+
+	const plotPickedMapPoints = () => {
+		// this is again due to a single shared state so don't want to refresh entire app because
+		// this changed
+
+		pickedMapPoints.innerText = ""; /// oooh danger zone XSS if using innerHTML
+	};
+
 	return (
 		<div className="App">
 			<div className="App__row">
@@ -229,7 +274,10 @@ function App() {
 							<button type="button" className="App__cancel-search" onClick={ () => showAddressSearchOverlay(false) }>Cancel</button>
 						</div>
 						<div id="map" className="App__map"></div>
-						<div className={ searchLayout.active ? "App__sidebar hidden" : "App__sidebar" }></div>
+						<div className={ searchLayout.active ? "App__sidebar hidden" : "App__sidebar" }>
+							<h4>Click anywhere on the map and they will show up below.</h4>
+							<div className="App__sidebar-map-points" ref={ pickedMapPointsDisplay }></div>
+						</div>
 					</div>
 				</div>
 			</div>
