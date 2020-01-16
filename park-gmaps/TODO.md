@@ -1,9 +1,15 @@
 - [ ] Base functionality
     - [x] load in map
     - [x] add reverse geocode(address to lat)
-    - [ ] try basic park search
+    - [x] make radius select change search
+    - [x] try basic park search
     - [ ] add basic point picker/add to starting array
     - [ ] add client-side haversine formula for radius searching
 
 - [ ] Extra
     - [ ] add park icon click show park details
+    - [ ] add tree icons for markers
+    - [ ] figure out how to increase search results from 20 cap
+        - use the pagination, can get up to 60
+            - https://developers.google.com/maps/documentation/javascript/places
+    - [ ] refactor app into subcomponents

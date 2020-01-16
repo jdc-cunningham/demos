@@ -123,6 +123,12 @@ function App() {
 				if (status !== 'OK' || !results.length) {
 					alert('No parks found near you, try increasing your radius or try a new address');
 				} else {
+					// get all results
+					if (pagination.hasNextPage) {
+						console.log(pagination); // returns crazy long UUID looks like
+						console.log(pagination.nextPage());
+					}
+
 					plotParks(results);
 				}
 			});
@@ -150,6 +156,11 @@ function App() {
 	const updateSearchRadius = (radius) => {
 		console.log(radius);
 		selectedRadius = radius;
+
+		// no no
+		if (document.querySelector('.App__autocomplete').value) {
+			updateLocation();
+		}
 	};
 
 	const radiusSelectOptions = () =>  {
