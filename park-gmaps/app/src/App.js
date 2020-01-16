@@ -10,6 +10,12 @@ import treeIcon from './tree-icon-100x100.png';
  * due to ugly full-component re-render. I was trying to get this done in a night.
  */
 
+// I think at some point these get emptied due to app re-render again bad structure/poor foresight
+let pickedMapPoints = [];
+let pickedMapMarkers = [];
+let searchLayoutActive = true; // this is bad,
+// but the setState isn't working or not bound to event anyway for canceling plotting of tree icons when switching to manual picker while async pagination in progress
+
 function App() {
 	const GOOGLE_MAPS_KEY = process.env.REACT_APP_GOOGLE_MAPS_KEY;
 	const [map, setMap] = useState({ ready: false }); // ehh this sucks
@@ -31,7 +37,6 @@ function App() {
 	let placesService;
 	let selectedRadius = 15;
 	let activeMarkers = [];
-	const pickedMapPoints = [];
 
 	if (!map.ready) {
 		const script = document.createElement('script'); //creates the html script element that points to external script via src
@@ -91,22 +96,46 @@ function App() {
 	};
 
 	const toggleSearchLayout = (active) => {
+		console.log('toggle', pickedMapPoints);
 		setSearchLayout({ active: active });
+		searchLayoutActive = active;
 		showAddressSearchOverlay(active); // this is somewhat lazy, could have put an icon over map
 		clearAndFocusAddressInput();
 		clearMap();
 	}
 	
 	const clearMap = () => {
-		activeMarkers.forEach((marker) => {
-			marker.setMap(null);
-		});
-		activeMarkers = [];
+		console.log('clearMap');
+		// technically should not do it for both
+		// autocomplete
+		if (activeMarkers.length) {
+			activeMarkers.forEach((marker) => {
+				marker.setMap(null);
+			});
+			activeMarkers = [];
+		}
+
+		// manual
+		if (pickedMapMarkers.length) {
+			pickedMapMarkers.forEach((marker) => {
+				marker.setMap(null);
+			});
+			pickedMapMarkers = [];
+			pickedMapPoints = [];
+		}
 	};
 
 	// skipping stuff or now like marker styling/click event/etc...
 	// can add info of the park from results, show on click of icon in window
 	const plotPoints = (points) => {
+		// this is an ugly async thing... a pagination can still be in progress, you switch over to the other layout and it plots it there.
+		console.log('pp');
+		if (!searchLayoutActive) {
+			clearMap();
+			return;
+		}
+
+		console.log('next');
 		clearMap();
 		const bounds = new window.google.maps.LatLngBounds();
 
@@ -121,12 +150,12 @@ function App() {
 			const marker = new window.google.maps.Marker({
 				position: park.geometry.location,
 				map: mapTarget.current,
-				icon: searchLayout.active ? icon : ""
+				icon
 			});
 			activeMarkers.push(marker);
 			bounds.extend(marker.position);
 		});
-		
+
 		mapTarget.current.fitBounds(bounds);
 	};
 
@@ -250,19 +279,52 @@ function App() {
 
 	const updatePickedMapPoints = (newPoint) => {
 		pickedMapPoints.push(newPoint); // could do this if you want to store all, will just plot as picked, could use to clear map
-		// plotPickedMapPoints();
-		plotPickedMapPoint(newPoint);
+		plotPickedMapPoints();
 	};
 
-	const plotPickedMapPoint = (newPoint) => {
-		console.log(newPoint.lat(), newPoint.lng());
+	const isFloatOrInt = (numVal) => {
+		// from SO
+		if (numVal % 1 === 0) {
+			return numVal;
+		}
+
+		if (Number(numVal) === numVal && numVal % 1 !== 0) {
+			return numVal;
+		}
+
+		return "";
 	};
+
 
 	const plotPickedMapPoints = () => {
-		// this is again due to a single shared state so don't want to refresh entire app because
-		// this changed
+		const bounds = new window.google.maps.LatLngBounds();
 
-		pickedMapPoints.innerText = ""; /// oooh danger zone XSS if using innerHTML
+		pickedMapPoints.forEach((point) => {
+			const marker = new window.google.maps.Marker({
+				position: {lat: point.lat(), lng: point.lng()},
+				map: mapTarget.current
+			});
+			pickedMapMarkers.push(marker); // could do this if you want to store all, will just plot as picked, could use to clear map
+			bounds.extend(marker.position);
+		});
+
+		if (pickedMapPoints.length > 1) { // so zoom doesn't change if only 1
+			mapTarget.current.fitBounds(bounds);
+		}
+
+		// update sidebar, not using state because single global state = bad
+		// this is really bad sorry...
+		let strConcat = "<br>";
+		// alright... I'm going to render HTML from user input potentially bad
+		// but the dynamic part I will check if it's a float/integer and if it is will let through
+		pickedMapPoints.forEach((point) => {
+			strConcat += "lat: " + isFloatOrInt(point.lat()) + "<br>" + "lng: " + isFloatOrInt(point.lng()) + "<br><br>";
+		});
+		pickedMapPointsDisplay.current.innerHTML = strConcat /// oooh danger zone XSS if using innerHTML
+	};
+
+	const clearPickerMapDisplay = () => {
+		clearMap();
 	};
 
 	return (
@@ -287,6 +349,7 @@ function App() {
 						<div id="map" className="App__map"></div>
 						<div className={ searchLayout.active ? "App__sidebar hidden" : "App__sidebar" }>
 							<h4>Click anywhere on the map and they will show up below.</h4>
+							<button type="button" onClick={ () => clearPickerMapDisplay }>Clear Map</button>
 							<div className="App__sidebar-map-points" ref={ pickedMapPointsDisplay }></div>
 						</div>
 					</div>
