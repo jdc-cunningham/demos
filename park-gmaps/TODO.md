@@ -3,13 +3,15 @@
     - [x] add reverse geocode(address to lat)
     - [x] make radius select change search
     - [x] try basic park search
-    - [ ] add basic point picker/add to starting array
-    - [ ] add client-side haversine formula for radius searching
+    - [x] add basic point picker/add to starting array
 
 - [ ] Extra
     - [ ] add park icon click show park details
-    - [ ] add tree icons for markers
-    - [ ] figure out how to increase search results from 20 cap
+    - [x] add tree icons for markers
+    - [x] figure out how to increase search results from 20 cap
         - use the pagination, can get up to 60
             - https://developers.google.com/maps/documentation/javascript/places
+    - [ ] figure out better way to do pagination so it doesn't do that async loading
     - [ ] refactor app into subcomponents
+    - [ ] add client-side haversine formula for radius searching
+        - this may not be needed until later when better structure factored into places API and combining manual data gathering of smaller parks
