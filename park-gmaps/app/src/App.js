@@ -16,7 +16,7 @@ let pickedMapMarkers = [];
 let searchLayoutActive = true; // this is bad,
 // but the setState isn't working or not bound to event anyway for canceling plotting of tree icons when switching to manual picker while async pagination in progress
 
-function App() {
+const App = () => {
 	const GOOGLE_MAPS_KEY = process.env.REACT_APP_GOOGLE_MAPS_KEY;
 	const [map, setMap] = useState({ ready: false }); // ehh this sucks
 	const [searchLayout, setSearchLayout] = useState({ active: true });
