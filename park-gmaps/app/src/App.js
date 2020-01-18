@@ -294,7 +294,7 @@ const App = () => {
 			<div className="App__row">
 				<Sidebar />
 				<div className="App__map-wrapper">
-					<Navbar props={{mapBtnSearch, mapBtnAddParks, toggleSearchLayout, updateSearchRadius}} />
+					<Navbar props={{ searchLayout, mapBtnSearch, mapBtnAddParks, toggleSearchLayout, updateSearchRadius }}/>
 					<div ref={ addressInputParent } className={ addressInput.active ? "App__map-group dark-overlay" : "App__map-group" }>
 						<div
 							className={
