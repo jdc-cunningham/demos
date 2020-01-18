@@ -165,9 +165,13 @@ const App = () => {
 		plotPoints(parks);
 		if (pagination.hasNextPage) {
 			// 2 second delay apparently
-			setTimeout(() => {
-				pagination.nextPage(); // plots more points on map, not added to marker list though...
-			}, 2000);
+
+			// this is functional, but I'm turning it off to reduce API calls
+			// if this is on though it automatically keeps loading results until they're all returned
+			// setTimeout(() => {
+			// 	pagination.nextPage(); // plots more points on map, not added to marker list though...
+			// }, 2000);
+			
 			// this delay blows, do not call it faster than 2 seconds, if you do you will get denied every subsequent response without doing some changes
 		}
 	};
@@ -227,12 +231,6 @@ const App = () => {
 			updateLocation();
 		}
 	};
-
-	const radiusSelectOptions = () =>  {
-		return [5, 10, 15, 25, 50, 100].map((distance, index) => {
-			return (<option key={index} value={distance}>{distance}</option>)
-		});
-	}
 
 	const showAddressSearchOverlay = (show) => {
 		// this is ugly, bad foresight, direct manipulation no state
@@ -296,7 +294,7 @@ const App = () => {
 			<div className="App__row">
 				<Sidebar />
 				<div className="App__map-wrapper">
-					<Navbar />
+					<Navbar props={{mapBtnSearch, mapBtnAddParks, toggleSearchLayout, updateSearchRadius}} />
 					<div ref={ addressInputParent } className={ addressInput.active ? "App__map-group dark-overlay" : "App__map-group" }>
 						<div
 							className={
