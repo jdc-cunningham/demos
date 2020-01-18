@@ -5,6 +5,9 @@ import STYLE from './MapStyle.json';
 // import axios from 'axios';
 import treeIcon from './tree-icon-100x100.png';
 
+import Sidebar from './components/sidebar/Sidebar.js';
+import Navbar from './components/navbar/Navbar.js';
+
 /**
  * Dev notes: some of this is ugly, I did not realize until later eg. I should set state but directly modified css properties
  * due to ugly full-component re-render. I was trying to get this done in a night.
@@ -231,47 +234,11 @@ const App = () => {
 		});
 	}
 
-	const mapNavBtns = () => {
-		return (
-			<>
-				<button
-					type="button"
-					ref={ mapBtnSearch } onClick={ () => toggleSearchLayout(true) }
-					className={ !searchLayout.active ? "" : "active" }
-				>Search Parks Near Me</button>
-				<button
-					type="button"
-					ref={ mapBtnAddParks } onClick={ () => toggleSearchLayout(false) }
-					className={ searchLayout.active ? "" : "active" }
-				>Add Parks Manually</button>
-				<div className="App__search-radius"> {/* should disable this, until search happened */}
-					<h3>Radius in miles</h3>
-					<select onChange={ (e) => updateSearchRadius(e.target.value) }>
-						{ radiusSelectOptions() }
-					</select>
-				</div>
-			</>
-		);
-	}
-
 	const showAddressSearchOverlay = (show) => {
 		// this is ugly, bad foresight, direct manipulation no state
 		// setAddressInput({ active: false }); // ugly app refresh original
 		addressInputGroup.current.style.display = show ? 'flex' : 'none';
 		addressInputParent.current.classList = show ? "App__map-group dark-overlay" : "App__map-group";
-	};
-
-	const info = () => {
-		return (
-			<>
-				<h1>Park Finder Demo</h1>
-				<p>After you search a location, to reset, click on "Search Parks Near Me"</p>
-				<br/>
-				<p>Add parks manually is just a basic coordinate picker</p>
-				<br/>
-				<p>Note: the delay while the parks load is from the pagination, there is a mandatory 2 second delay between requests. Can do it in the background/show all at once, show loading icon, etc...</p>
-			</>
-		);
 	};
 
 	const updatePickedMapPoints = (newPoint) => {
@@ -327,13 +294,9 @@ const App = () => {
 	return (
 		<div className="App">
 			<div className="App__row">
-				<div className="App__info">
-					{ info() }
-				</div>
+				<Sidebar />
 				<div className="App__map-wrapper">
-					<div className="App__navbar">
-						{ mapNavBtns() }
-					</div>
+					<Navbar />
 					<div ref={ addressInputParent } className={ addressInput.active ? "App__map-group dark-overlay" : "App__map-group" }>
 						<div
 							className={
