@@ -4,12 +4,9 @@ import treeIcon from './../../tree-icon-100x100.png';
 // I think at some point these get emptied due to app re-render again bad structure/poor foresight
 let pickedMapPoints = [];
 let pickedMapMarkers = [];
-export let searchLayoutActive = true; // this is bad,
-// but the setState isn't working or not bound to event anyway for canceling plotting of tree icons when switching to manual picker while async pagination in progress
 
 let activeMarkers = [];
 let placesService;
-export let selectedRadius = 15;
 
 export const isFloatOrInt = (numVal) => {
     // from SO
@@ -152,7 +149,7 @@ export const basicParkSearch = (
 };
 
 export const updateLocation = (addressInputGroup, radiusMiles, activeMarkers, pickedMapMarkers, pickedMapPoints, pickedMapPointsDisplay, points,
-    searchLayoutActive, treeIcon, mapTarget) => {
+    searchLayoutActive, treeIcon, mapTarget, autoCompleteInput, addressInputParent) => {
     placesService = new window.google.maps.places.PlacesService(mapTarget.current);
     const selectedPlace = autoCompleteInput.current.getPlace();
     if ( selectedPlace ) {
@@ -180,7 +177,7 @@ export const clearAndFocusAddressInput = () => {
     }
 };
 
-export const plotPickedMapPoints = () => {
+export const plotPickedMapPoints = (mapTarget, pickedMapPointsDisplay) => {
     const bounds = new window.google.maps.LatLngBounds();
 
     pickedMapPoints.forEach((point) => {
@@ -207,7 +204,7 @@ export const plotPickedMapPoints = () => {
     pickedMapPointsDisplay.current.innerHTML = strConcat /// oooh danger zone XSS if using innerHTML
 };
 
-export const clearPickerMapDisplay = () => {
+export const clearPickerMapDisplay = (pickedMapPointsDisplay) => {
     clearMap(activeMarkers, pickedMapMarkers, pickedMapPoints, pickedMapPointsDisplay);
 };
 

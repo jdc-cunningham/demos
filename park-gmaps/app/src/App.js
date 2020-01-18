@@ -14,7 +14,6 @@ import {
     clearAndFocusAddressInput,
     clearPickerMapDisplay,
 	updatePickedMapPoints,
-	searchLayoutActive,
 	showAddressSearchOverlay,
 	selectedRadius
 } from './methods/map/map-methods.js';
@@ -53,6 +52,11 @@ const App = () => {
 	const addressInputGroup = useRef(null);
 	const pickedMapPointsDisplay = useRef(null);
 	const autoCompleteInput = useRef(null);
+
+	let searchLayoutActive = true; // this is bad,
+	// but the setState isn't working or not bound to event anyway for canceling plotting of tree icons when switching to manual picker while async pagination in progress
+
+	let selectedRadius = 15;
 
 	useEffect(() => {
 		// load map after script added
