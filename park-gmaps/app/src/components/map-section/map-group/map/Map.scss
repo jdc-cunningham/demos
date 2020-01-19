@@ -1,0 +1,10 @@
+.App__Map {
+    display: flex;
+    flex: 1;
+    align-items: stretch;
+    justify-content: flex-start;
+
+    #map {
+        flex: 1;
+    }
+}

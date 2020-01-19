@@ -1,0 +1,14 @@
+.App__MapSidebar {
+    width: 30%;
+    max-width: 350px;
+    padding: 0.5rem;
+  
+    h4 {
+      font-size: 1.25rem;
+      color: #282828;
+    }
+  
+    &.hidden {
+      display: none;
+    }
+}

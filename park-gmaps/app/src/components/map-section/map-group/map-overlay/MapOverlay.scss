@@ -1,0 +1,47 @@
+.App__MapOverlay {
+    position: absolute;
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    flex-direction: row;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    z-index: 99999;
+
+    &.hidden {
+        display: none;
+    }
+}
+
+.App__autocomplete {
+    font-size: 2rem;
+    padding: 0.5rem;
+    border: 0;
+    border-radius: 0.5rem;
+    outline: none;
+  
+    &::-webkit-input-placeholder { /* Edge */
+        color: #aaa;
+    }
+    
+    &:-ms-input-placeholder { /* Internet Explorer 10-11 */
+        color: #aaa;
+    }
+    
+    &::placeholder {
+        color: #aaa;
+    }
+}
+
+.App__cancel-search {
+    margin-left: 0.5rem;
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    border: 0;
+    background-color: crimson;
+    color:white;
+    cursor: pointer;
+  }
+  

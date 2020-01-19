@@ -1,5 +1,9 @@
 body {
   font-family: 'Roboto', sans-serif;
+
+  .pac-container { // auto-complete dropdown
+    z-index: 99999;
+  }
 }
 
 body * {
