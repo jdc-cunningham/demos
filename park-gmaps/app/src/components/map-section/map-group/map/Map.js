@@ -16,7 +16,7 @@ const Map = (props) => {
 		pickedMapPointsDisplay
 	} = propContents;
 	const [map, setMap] = useState({ ready: false }); // ehh this sucks
-	const [center, setCenter] = useState({
+	const [center] = useState({
 		lat: 39.092965,
 		lng: -94.583778 // plexpod crossroads
 	});
@@ -51,6 +51,8 @@ const Map = (props) => {
 
 			bindAutoCompleteInput();
 		}
+		// taking out dependent variable eg. map breaks this, but these warnings are visible
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [map]);
 
 	useEffect(() => {
@@ -59,6 +61,7 @@ const Map = (props) => {
 		) {
 			bindAutoCompleteInput();
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [searchLayout]);
 
 	const updatePickedMapPoints = (newPoint) => {
@@ -88,7 +91,7 @@ const Map = (props) => {
 		// alright... I'm going to render HTML from user input potentially bad
 		// but the dynamic part I will check if it's a float/integer and if it is will let through
 		pickedMapPoints.forEach((point) => {
-			strConcat += "lat: " + isFloatOrInt(point.lat()) + "<br>" + "lng: " + isFloatOrInt(point.lng()) + "<br><br>";
+			strConcat += `lat: ${isFloatOrInt(point.lat())} <br> lng: ${isFloatOrInt(point.lng())} <br><br>`;
 		});
 		pickedMapPointsDisplay.current.innerHTML = strConcat /// oooh danger zone XSS if using innerHTML
 	};

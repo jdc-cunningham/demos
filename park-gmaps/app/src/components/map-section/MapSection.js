@@ -1,4 +1,4 @@
-import React, { setState, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import './MapSection.scss';
 import MapNavbar from './map-navbar/MapNavbar.js';
 import MapGroup from './map-group/MapGroup.js';
@@ -6,11 +6,13 @@ import STYLE from './../../MapStyle.json';
 // import axios from 'axios';
 import treeIcon from './../../tree-icon-100x100.png';
 
-const MapSection = () => {
+const MapSection = (props) => {
+	// searchLayoutActive is not a duplicate state variable, it's directly tied to dom/bad
+	let { pickedMapPoints, pickedMapMarkers, activeMarkers } = props.props;
+	
 	const GOOGLE_MAPS_KEY = process.env.REACT_APP_GOOGLE_MAPS_KEY;
 	const [searchLayout, setSearchLayout] = useState({ active: true });
-	const [addressInput, setAddressInput] = useState({ active: true });
-	const [autoComplete, setAutoComplete] = useState({ loaded: false });
+	const [addressInput] = useState({ active: true });
 
 	const mapTarget = useRef(null);
 	const mapBtnSearch = useRef(null);
@@ -22,16 +24,12 @@ const MapSection = () => {
 
 	let placesService;
 	let selectedRadius = 15;
-	let pickedMapPoints = [];
-	let pickedMapMarkers = [];
-	let searchLayoutActive = true;
-	let activeMarkers = [];
 
 	// skipping stuff or now like marker styling/click event/etc...
 	// can add info of the park from results, show on click of icon in window
 	const plotPoints = (points) => {
 		// this is an ugly async thing... a pagination can still be in progress, you switch over to the other layout and it plots it there.
-		if (!searchLayoutActive) {
+		if (!searchLayout.active) { // was using searchLayoutActive but not working anymore
 			clearMap();
 			return;
 		}
@@ -64,11 +62,15 @@ const MapSection = () => {
 	const plotParks = (parks, pagination) => {
 		plotPoints(parks);
 		if (pagination.hasNextPage) {
-			// 2 second delay apparently
-			setTimeout(() => {
-				pagination.nextPage(); // plots more points on map, not added to marker list though...
-			}, 2000);
-			// this delay blows, do not call it faster than 2 seconds, if you do you will get denied every subsequent response without doing some changes
+			// the commented out code below works
+			// to load more results from current search
+			// you call the nextPage() method on pagination
+			// note that there is a mandatory 2 second delay
+			// also this API is expensive
+
+			// setTimeout(() => {
+			// 	pagination.nextPage();
+			// }, 2000);
 		}
 	};
 
@@ -131,7 +133,6 @@ const MapSection = () => {
 
 	const toggleSearchLayout = (active) => {
 		setSearchLayout({ active: active });
-		searchLayoutActive = active;
 		showAddressSearchOverlay(active); // this is somewhat lazy, could have put an icon over map
 		clearAndFocusAddressInput();
 		clearMap();
