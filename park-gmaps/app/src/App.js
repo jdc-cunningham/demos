@@ -14,7 +14,7 @@ const App = () => {
 		<div className="App">
 			<div className="App__row">
 				<Sidebar />
-				<MapSection props={{
+				<MapSection mapSectionProps={{
 					pickedMapPoints,
 					pickedMapMarkers,
 					searchLayoutActive,

@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import './Map.scss';
 
 const Map = (props) => {
-	const propContents = props.props; // weird
 	const {
 		mapTarget,
 		autoCompleteInput,
@@ -14,7 +13,7 @@ const Map = (props) => {
 		pickedMapMarkers,
 		isFloatOrInt,
 		pickedMapPointsDisplay
-	} = propContents;
+	} = props.mapProps;
 	const [map, setMap] = useState({ ready: false }); // ehh this sucks
 	const [center] = useState({
 		lat: 39.092965,

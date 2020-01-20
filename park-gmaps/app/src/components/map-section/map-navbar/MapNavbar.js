@@ -8,14 +8,14 @@ const MapNavbar = (props) => {
 		});
     }
     
-    const mapNavBtns = ({props}) => {
+    const mapNavBtns = (props) => {
         const {
             searchLayout,
             updateSearchRadius,
             mapBtnAddParks,
             mapBtnSearch,
             toggleSearchLayout
-        } = props;
+        } = props.mapNavbarProps;
 		return (
 			<>
 				<button

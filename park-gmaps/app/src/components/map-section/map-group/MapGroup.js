@@ -9,18 +9,18 @@ const MapGroup = (props) => {
 	const {
 		addressInput, addressInputGroup, autoCompleteInput, showAddressSearchOverlay,
 		searchLayout, clearPickerMapDisplay, pickedMapPointsDisplay, addressInputParent
-	} = props.props;
+	} = props.mapGroupProps;
 
 	return (
 		<div ref={ addressInputParent } className={ addressInput.active ? "App__MapGroup dark-overlay" : "App__MapGroup" }>
-			<MapOverlay props={{
+			<MapOverlay mapOverlayProps={{
 				addressInput,
 				addressInputGroup,
 				autoCompleteInput,
 				showAddressSearchOverlay
 			}} />
-			<Map props={props.props} />
-			<MapSidebar props={{
+			<Map mapProps={props.mapGroupProps} />
+			<MapSidebar mapSidebarProps={{
 				searchLayout,
 				clearPickerMapDisplay,
 				pickedMapPointsDisplay

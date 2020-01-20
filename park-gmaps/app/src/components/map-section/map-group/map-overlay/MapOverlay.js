@@ -3,7 +3,7 @@ import './MapOverlay.scss';
 
 const MapOverlay = (props) => {
     // double nested again
-    const { addressInput, addressInputGroup, autoCompleteInput, showAddressSearchOverlay } = props.props;
+    const { addressInput, addressInputGroup, autoCompleteInput, showAddressSearchOverlay } = props.mapOverlayProps;
 
 	return (
         <div

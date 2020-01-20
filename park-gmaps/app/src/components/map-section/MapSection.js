@@ -8,7 +8,7 @@ import treeIcon from './../../tree-icon-100x100.png';
 
 const MapSection = (props) => {
 	// searchLayoutActive is not a duplicate state variable, it's directly tied to dom/bad
-	let { pickedMapPoints, pickedMapMarkers, activeMarkers } = props.props;
+	let { pickedMapPoints, pickedMapMarkers, activeMarkers } = props.mapSectionProps;
 	
 	const GOOGLE_MAPS_KEY = process.env.REACT_APP_GOOGLE_MAPS_KEY;
 	const [searchLayout, setSearchLayout] = useState({ active: true });
@@ -201,14 +201,14 @@ const MapSection = (props) => {
 
 	return (
 		<div className="App__MapSection">
-			<MapNavbar props={{
+			<MapNavbar mapNavbarProps={{
 				searchLayout,
 				updateSearchRadius,
 				mapBtnAddParks,
 				mapBtnSearch,
 				toggleSearchLayout
 			}}/>
-			<MapGroup props={{
+			<MapGroup mapGroupProps={{
 				addressInput,
 				addressInputGroup,
 				mapTarget,
